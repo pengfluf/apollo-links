@@ -38,7 +38,13 @@ function LinkList(props) {
 }
 
 LinkList.propTypes = {
-  feedQuery: PropTypes.object,
+  feedQuery: PropTypes.shape({
+    loading: PropTypes.bool,
+    error: PropTypes.object,
+    feed: PropTypes.shape({
+      links: PropTypes.array,
+    }),
+  }),
 };
 
 export default graphql(FEED_QUERY, { name: 'feedQuery' })(LinkList);
