@@ -1,0 +1,11 @@
+.navbar {
+  display: flex;
+}
+
+.navbar__link {
+  margin-left: 20px;
+}
+
+.navbar__link:first-of-type {
+  margin-left: 0;
+}

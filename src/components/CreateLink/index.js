@@ -1,7 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 
 import { POST_MUTATION } from './gql/mutations';
+
+import { handleChangeInput } from '../../utils';
 
 class CreateLink extends React.Component {
   constructor() {
@@ -12,7 +15,7 @@ class CreateLink extends React.Component {
       url: '',
     };
 
-    this.handleChangeInput = this.handleChangeInput.bind(this);
+    this.setState = this.setState.bind(this);
     this._createLink = this._createLink.bind(this);
   }
 
@@ -24,12 +27,7 @@ class CreateLink extends React.Component {
         url,
       },
     });
-  }
-
-  handleChangeInput(fieldName, value) {
-    this.setState({
-      [fieldName]: value,
-    });
+    this.props.history.push('/');
   }
 
   render() {
@@ -40,7 +38,7 @@ class CreateLink extends React.Component {
           <input
             value={description}
             onChange={(e) =>
-              this.handleChangeInput('description', e.target.value)
+              handleChangeInput('description', e.target.value, this.setState)
             }
             type="text"
             placeholder="A description for the link"
@@ -48,7 +46,7 @@ class CreateLink extends React.Component {
           <input
             value={url}
             onChange={(e) =>
-              this.handleChangeInput('url', e.target.value)
+              handleChangeInput('url', e.target.value, this.setState)
             }
             type="text"
             placeholder="The URL for the link"
@@ -59,5 +57,12 @@ class CreateLink extends React.Component {
     );
   }
 }
+
+CreateLink.propTypes = {
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }),
+  postMutation: PropTypes.func,
+};
 
 export default graphql(POST_MUTATION, { name: 'postMutation' })(CreateLink);
