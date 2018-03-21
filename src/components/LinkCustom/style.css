@@ -1,0 +1,10 @@
+.linkCustom {
+  padding: 25px;
+}
+
+.linkCustom__vote {
+  cursor: pointer;
+
+  border: none;
+  background-color: transparent;
+}

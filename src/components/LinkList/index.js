@@ -6,35 +6,55 @@ import LinkCustom from '../LinkCustom';
 
 import { FEED_QUERY } from './gql/queries';
 
-function LinkList(props) {
-  const { feedQuery } = props;
+class LinkList extends React.Component {
+  constructor() {
+    super();
 
-  const {
-    loading,
-    error,
-    feed,
-  } = props.feedQuery;
-
-  if (feedQuery && loading) {
-    return <div>Loading...</div>;
+    this._updateCacheAfterVote = this._updateCacheAfterVote.bind(this);
   }
 
-  if (feedQuery && error) {
-    return <div>Error</div>;
+  _updateCacheAfterVote(store, createVote, linkId) {
+    const data = store.readQuery({ query: FEED_QUERY });
+
+    const votedLink = data.feed.links
+      .find((link) => link.id === linkId);
+    votedLink.votes = createVote.link.votes;
+
+    store.writeQuery({ query: FEED_QUERY, data });
   }
 
-  return (
-    <div>
-      {
-        feed.links.map((link) => (
-          <LinkCustom
-            key={link.id}
-            link={link}
-          />
-        ))
-      }
-    </div>
-  );
+  render() {
+    const { feedQuery } = this.props;
+
+    const {
+      loading,
+      error,
+      feed,
+    } = this.props.feedQuery;
+
+    if (feedQuery && loading) {
+      return <div>Loading...</div>;
+    }
+
+    if (feedQuery && error) {
+      return <div>Error</div>;
+    }
+
+    return (
+      <div>
+        {
+          feed.links.map((link, index) => (
+            <LinkCustom
+              index={index}
+              key={link.id}
+              link={link}
+              updateStoreAfterVote={this._updateCacheAfterVote}
+            />
+          ))
+        }
+      </div>
+    );
+  }
 }
 
 LinkList.propTypes = {

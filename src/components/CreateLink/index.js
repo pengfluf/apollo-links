@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { graphql } from 'react-apollo';
 
 import { POST_MUTATION } from './gql/mutations';
+import { FEED_QUERY } from '../LinkList/gql/queries';
 
 import { handleChangeInput } from '../../utils';
 
@@ -25,6 +26,15 @@ class CreateLink extends React.Component {
       variables: {
         description,
         url,
+      },
+      update: (store, { data: { post } }) => {
+        const data = store
+          .readQuery({ query: FEED_QUERY });
+        data.feed.links.splice(0, 0, post);
+        store.writeQuery({
+          query: FEED_QUERY,
+          data,
+        });
       },
     });
     this.props.history.push('/');

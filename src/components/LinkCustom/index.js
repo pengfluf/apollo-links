@@ -1,22 +1,90 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
+import { graphql } from 'react-apollo';
+
+import { AUTH_TOKEN } from '../Login/constants';
+
+import { VOTE_MUTATION } from './gql/mutations';
+
+import { timeDifferenceForDate } from '../../utils';
+
+import './style.css';
 
 class LinkCustom extends React.Component {
-  async _voteForLink() {
+  constructor() {
+    super();
 
+    this._voteForLink = this._voteForLink.bind(this);
+  }
+
+  async _voteForLink() {
+    const linkId = this.props.link.id;
+    await this.props.voteMutation({
+      variables: {
+        linkId,
+      },
+      update: (store, { data: { vote } }) => {
+        this.props.updateStoreAfterVote(store, vote, linkId);
+      },
+    });
   }
 
   render() {
+    const authToken = localStorage.getItem(AUTH_TOKEN);
+    const {
+      index,
+      link,
+    } = this.props;
     return (
-      <div>
+      <div className="linkCustom">
+
         <div>
-          {this.props.link.description} ({this.props.link.url})
+          <span>{index + 1}</span>
+          {
+            authToken && (
+              <button
+                className="linkCustom__vote"
+                onClick={this._voteForLink}
+              >
+                ▲
+              </button>
+            )
+          }
         </div>
+
+        <div>
+          <div>
+            {link.description} ({link.url})
+          </div>
+          <div>
+            {link.votes.length} votes | by{' '}
+            {
+              link.postedBy ?
+                link.postedBy.name :
+                'Unknown'
+            }
+            {' '}
+            {timeDifferenceForDate(link.createdAt)}
+          </div>
+        </div>
+
       </div>
     );
   }
 }
 
-LinkCustom.propTypes = {};
+LinkCustom.propTypes = {
+  index: PropTypes.number,
+  link: PropTypes.shape({
+    description: PropTypes.string,
+    url: PropTypes.string,
+    votes: PropTypes.array,
+    postedBy: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    createdAt: PropTypes.string,
+  }),
+  voteMutation: PropTypes.func,
+};
 
-export default LinkCustom;
+export default graphql(VOTE_MUTATION, { name: 'voteMutation' })(LinkCustom);
