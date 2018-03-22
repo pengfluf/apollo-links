@@ -76,6 +76,7 @@ class LinkCustom extends React.Component {
 LinkCustom.propTypes = {
   index: PropTypes.number,
   link: PropTypes.shape({
+    id: PropTypes.string,
     description: PropTypes.string,
     url: PropTypes.string,
     votes: PropTypes.array,
@@ -85,6 +86,7 @@ LinkCustom.propTypes = {
     createdAt: PropTypes.string,
   }),
   voteMutation: PropTypes.func,
+  updateStoreAfterVote: PropTypes.func,
 };
 
 export default graphql(VOTE_MUTATION, { name: 'voteMutation' })(LinkCustom);

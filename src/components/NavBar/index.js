@@ -29,6 +29,13 @@ function NavBar() {
         )
       }
 
+      <NavLink
+        to="/search"
+        className="navbar__link"
+      >
+        Search
+      </NavLink>
+
       {
         authToken ? (
           <NavLink
