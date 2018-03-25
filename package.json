@@ -5,9 +5,12 @@
   "dependencies": {
     "apollo-client-preset": "^1.0.8",
     "apollo-link-ws": "^1.0.7",
+    "bcryptjs": "^2.4.3",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.8.0",
+    "graphql-yoga": "1.6.1",
     "normalize.css": "^8.0.0",
+    "prisma-binding": "1.5.16",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.0.4",
@@ -18,7 +21,10 @@
     "subscriptions-transport-ws": "^0.9.7"
   },
   "scripts": {
-    "start": "PORT=3005 react-scripts start",
+    "start": "npm-run-all --parallel server client",
+    "client": "PORT=3005 react-scripts start",
+    "server": "node ./server/src/index.js",
+    "prisma": "prisma",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
@@ -28,6 +34,9 @@
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0"
+    "eslint-plugin-react": "^7.7.0",
+    "graphql-cli": "2.15.8",
+    "npm-run-all": "4.1.2",
+    "prisma": "1.4.1"
   }
 }
