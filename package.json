@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "apollo-client-preset": "^1.0.8",
+    "apollo-link-ws": "^1.0.7",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.8.0",
     "normalize.css": "^8.0.0",
@@ -13,7 +14,8 @@
     "react-dom": "^16.2.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.1.1"
+    "react-scripts": "1.1.1",
+    "subscriptions-transport-ws": "^0.9.7"
   },
   "scripts": {
     "start": "PORT=3005 react-scripts start",
