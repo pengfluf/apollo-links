@@ -15,7 +15,14 @@ function NavBar() {
         to="/"
         className="navbar__link"
       >
-        Home
+        New
+      </NavLink>
+
+      <NavLink
+        to="/top"
+        className="navbar__link"
+      >
+        Top
       </NavLink>
 
       {

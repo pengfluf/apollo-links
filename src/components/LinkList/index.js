@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 
 import LinkCustom from '../LinkCustom';
 
+import { LINKS_PER_PAGE } from './constants';
 import { FEED_QUERY } from './gql/queries';
 
 class LinkList extends React.Component {
@@ -12,6 +13,9 @@ class LinkList extends React.Component {
     super();
 
     this._updateCacheAfterVote = this._updateCacheAfterVote.bind(this);
+    this._goToPrevPage = this._goToPrevPage.bind(this);
+    this._goToNextPage = this._goToNextPage.bind(this);
+    this._getLinksToRender = this._getLinksToRender.bind(this);
   }
 
   componentDidMount() {
@@ -19,8 +23,47 @@ class LinkList extends React.Component {
     this._subscribeToNewVotes();
   }
 
+  _getLinksToRender(isNewPage) {
+    const { feed } = this.props.feedQuery;
+    if (feed && feed.links) {
+      if (isNewPage) {
+        return feed.links;
+      }
+      const rankedLinks = feed.links.slice();
+      rankedLinks
+        .sort((link1, link2) => link2.votes.length - link1.votes.length);
+      return rankedLinks;
+    }
+    return [];
+  }
+
+  _goToPrevPage() {
+    const pageNum = parseInt(this.props.match.params.pageNum, 10);
+    if (pageNum > 1) {
+      const prevPage = pageNum - 1;
+      this.props.history.push(`/new/${prevPage}`);
+    }
+  }
+
+  _goToNextPage() {
+    const pageNum = parseInt(this.props.match.params.pageNum, 10);
+    if (pageNum <= this.props.feedQuery.feed.count / LINKS_PER_PAGE) {
+      const nextPage = pageNum + 1;
+      this.props.history.push(`/new/${nextPage}`);
+    }
+  }
+
   _updateCacheAfterVote(store, createVote, linkId) {
-    const data = store.readQuery({ query: FEED_QUERY });
+    const isNewPage = this.props.location.pathname.includes('new');
+    const pageNum = parseInt(this.props.match.params.pageNum, 10);
+    const skip = isNewPage ? (pageNum - 1) * LINKS_PER_PAGE : 0;
+    const first = isNewPage ? LINKS_PER_PAGE : 100;
+    const orderBy = isNewPage ? 'createdAt_DESC' : null;
+
+    const data = store.readQuery({
+      query: FEED_QUERY,
+      variables: { first, skip, orderBy },
+    });
 
     const votedLink = data.feed.links
       .find((link) => link.id === linkId);
@@ -105,8 +148,10 @@ class LinkList extends React.Component {
     const {
       loading,
       error,
-      feed,
     } = this.props.feedQuery;
+
+    const isNewPage = this.props.location.pathname.includes('new');
+    const linksToRender = this._getLinksToRender(isNewPage);
 
     if (feedQuery && loading) {
       return <div>Loading...</div>;
@@ -119,7 +164,7 @@ class LinkList extends React.Component {
     return (
       <div>
         {
-          feed.links.map((link, index) => (
+          linksToRender.map((link, index) => (
             <LinkCustom
               index={index}
               key={link.id}
@@ -127,6 +172,17 @@ class LinkList extends React.Component {
               updateStoreAfterVote={this._updateCacheAfterVote}
             />
           ))
+        }
+        {
+          isNewPage &&
+          <div>
+            <button onClick={this._goToPrevPage}>
+              Previous
+            </button>
+            <button onClick={this._goToNextPage}>
+              Next
+            </button>
+          </div>
         }
       </div>
     );
@@ -139,9 +195,33 @@ LinkList.propTypes = {
     error: PropTypes.object,
     feed: PropTypes.shape({
       links: PropTypes.array,
+      count: PropTypes.number,
     }),
     subscribeToMore: PropTypes.func,
   }),
+  location: PropTypes.shape({
+    pathname: PropTypes.string,
+  }),
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      pageNum: PropTypes.string,
+    }),
+  }),
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }),
 };
 
-export default graphql(FEED_QUERY, { name: 'feedQuery' })(LinkList);
+export default graphql(FEED_QUERY, {
+  name: 'feedQuery',
+  options: (ownProps) => {
+    const pageNum = parseInt(ownProps.match.params.pageNum, 10);
+    const isNewPage = ownProps.location.pathname.includes('new');
+    const skip = isNewPage ? (pageNum - 1) * LINKS_PER_PAGE : 0;
+    const first = isNewPage ? LINKS_PER_PAGE : 100;
+    const orderBy = isNewPage ? 'createdAt_DESC' : null;
+    return {
+      variables: { first, skip, orderBy },
+    };
+  },
+})(LinkList);

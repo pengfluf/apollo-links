@@ -5,6 +5,8 @@ import { graphql } from 'react-apollo';
 import { POST_MUTATION } from './gql/mutations';
 import { FEED_QUERY } from '../LinkList/gql/queries';
 
+import { LINKS_PER_PAGE } from '../LinkList/constants';
+
 import { handleChangeInput } from '../../utils';
 
 class CreateLink extends React.Component {
@@ -27,16 +29,28 @@ class CreateLink extends React.Component {
         description,
         url,
       },
+
       update: (store, { data: { post } }) => {
+        const first = LINKS_PER_PAGE;
+        const skip = 0;
+        const orderBy = 'createdAt_DESC';
+
         const data = store
-          .readQuery({ query: FEED_QUERY });
+          .readQuery({
+            query: FEED_QUERY,
+            variables: { first, skip, orderBy },
+          });
+
         data.feed.links.splice(0, 0, post);
+        data.feed.links.pop();
         store.writeQuery({
           query: FEED_QUERY,
           data,
+          variables: { first, skip, orderBy },
         });
       },
     });
+
     this.props.history.push('/');
   }
 

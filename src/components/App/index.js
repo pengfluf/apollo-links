@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import NavBar from '../NavBar';
 import LinkList from '../LinkList';
@@ -12,7 +12,9 @@ function App() {
     <div>
       <NavBar />
       <Switch>
-        <Route exact path="/" component={LinkList} />
+        <Redirect exact from="/" to="/new/1" />
+        <Route path="/new/:pageNum" component={LinkList} />
+        <Route path="/top" component={LinkList} />
         <Route path="/login" component={Login} />
         <Route path="/create" component={CreateLink} />
         <Route path="/search" component={Search} />
